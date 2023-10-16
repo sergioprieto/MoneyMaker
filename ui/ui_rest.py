@@ -71,7 +71,7 @@ def configure_retriever():
     embeddings = SentenceTransformerEmbeddings(model_name="multi-qa-MiniLM-L6-cos-v1")
     vectorstore = Chroma(
         embedding_function=embeddings,
-        persist_directory="../db",
+        persist_directory="./db",
     ).as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
     llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k", max_tokens=1000)
