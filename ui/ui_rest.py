@@ -71,7 +71,7 @@ def configure_retriever():
     embeddings = SentenceTransformerEmbeddings(model_name="multi-qa-MiniLM-L6-cos-v1")
     vectorstore = Chroma(
         embedding_function=embeddings,
-        persist_directory="./db",
+        persist_directory="../db",
     ).as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
     llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k", max_tokens=1000)
@@ -164,7 +164,7 @@ with st.sidebar:
     os.environ["OPENAI_API_KEY"] = openaikey
     # LOAD TOKEN
     if st.button("Add Token"):
-        tokenresponse = requests.get(f"http://money1:8000/load_token?token={openaikey}")
+        tokenresponse = requests.get(f"http://localhost:8000/load_token?token={openaikey}")
 
     st.divider()
     st.subheader("Your finance documents")
@@ -174,7 +174,7 @@ with st.sidebar:
     if st.button("Add Data") and openaikey:
         with st.spinner("Adding Data..."):
             documents = []
-            url = "http://money1:8000/load_pdfs"
+            url = "http://localhost:8000/load_pdfs"
             data_list = []
             counter = 1
             for f in uploaded_files:
@@ -186,8 +186,11 @@ with st.sidebar:
 
     on = st.toggle("ACTIVATE GECKO")
 
-
+global limpiar
+limpiar = None
 if on:
+    st.session_state["messages"] = []
+    limpiar = False
     llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-16k", max_tokens=1000)
     memory = AgentTokenBufferMemory(memory_key="history", llm=llm, max_token_limit=1000)
 
@@ -206,9 +209,10 @@ if on:
         max_iterations=3,
     )
 
-    starter_message = "Ask me anything about finanance"
+    starter_message = "Ask me anything about finance - I am better than MoneyMaker"
     if "messages" not in st.session_state or st.sidebar.button("Clear message history"):
         st.session_state["messages"] = [AIMessage(content=starter_message)]
+        limpiar = True
 
     for msg in st.session_state.messages:
         if isinstance(msg, AIMessage):
@@ -232,6 +236,9 @@ if on:
             st.session_state["messages"] = memory.buffer
             run_id = response["__run"].run_id
 else:
+    if limpiar == True:
+        st.session_state["messages"] = [AIMessage(content='')]
+        
     st.header("Welcome to MoneyMaker! 💵")
     col1, col2 = st.columns(2)
     with col1:
@@ -250,8 +257,8 @@ else:
             unsafe_allow_html=True,
         )
     # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    #if "messages" not in st.session_state:
+    st.session_state.messages = []
 
     for message in st.session_state.messages:
         if message["role"] == "user":
@@ -277,7 +284,7 @@ else:
         with st.chat_message("assistant", avatar=av_ass):
             message_placeholder = st.empty()
             full_response = ""
-            apiresponse = requests.get(f"http://money1:8000/model?question={myprompt}")
+            apiresponse = requests.get(f"http://localhost:8000/model?question={myprompt}")
             risposta = apiresponse.content.decode("utf-8")
             res = risposta[1:-1]
             response = res.split(" ")
