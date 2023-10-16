@@ -104,15 +104,15 @@ def load_vectorstore(text_chunks):
         success (bool): True if the vector store was successfully loaded or created, False otherwise.
     """
 
-    if os.path.exists("../db") and os.path.isdir("../db"):
+    if os.path.exists("../db") and os.path.isdir("./db"):
         print('DB EXISTENTE')
-        sqlite_file = [file for file in os.listdir("../db") if file.endswith(".sqlite3")]
+        sqlite_file = [file for file in os.listdir("./db") if file.endswith(".sqlite3")]
         if sqlite_file:
             embeddings = SentenceTransformerEmbeddings(
                 model_name="multi-qa-MiniLM-L6-cos-v1"
             )
             vectorstore = Chroma(
-                embedding_function=embeddings, persist_directory="../db"
+                embedding_function=embeddings, persist_directory="./db"
             )
             vectorstore.add_texts(texts=text_chunks)
 
@@ -123,7 +123,7 @@ def load_vectorstore(text_chunks):
             model_name="multi-qa-MiniLM-L6-cos-v1"
         )
         vectorstore = Chroma.from_texts(
-            texts=text_chunks, embedding_function=embeddings, persist_directory="../db"
+            texts=text_chunks, embedding_function=embeddings, persist_directory="./db"
         )
         return True
 
@@ -143,7 +143,7 @@ def get_vectorstore():
 
     embeddings = SentenceTransformerEmbeddings(model_name="multi-qa-MiniLM-L6-cos-v1")
     vectorstore = Chroma(
-        persist_directory="../db",
+        persist_directory="./db",
         embedding_function=embeddings,
     ).as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
