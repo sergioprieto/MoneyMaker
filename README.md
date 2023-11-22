@@ -1,6 +1,6 @@
 # Financial Advisor Chatbot
 
-## Culmination project of the ML Engineering program at  [Anyone AI](https://www.linkedin.com/school/anyone-ai/).
+## Culmination project
 
 ### Team members:
 
